@@ -30,6 +30,34 @@ pub fn RedBlackTreeNode(comptime T: type) type {
     };
 }
 
+pub fn ReversedRedBlackTreeNode(comptime T: type) type {
+    return struct {
+        const Self = @This();
+        parent: ?*RedBlackTreeNode(T),
+        left: ?*RedBlackTreeNode(T),
+        right: ?*RedBlackTreeNode(T),
+        key: T,
+        color: Color,
+
+        pub fn init(self: *Self, elem: T, color: Color) void {
+            self.parent = null;
+            self.left = null;
+            self.right = null;
+            self.key = elem;
+            self.color = color;
+        }
+
+        pub fn compare(self: Self, other: T) i8 {
+            if (self.key == other) {
+                return 0;
+            } else if (self.key > other) {
+                return -1;
+            } else {
+                return 1;
+            }
+        }
+    };
+}
 pub fn NamedRedBlackTreeNode(comptime T: type) type {
     return struct {
         const Self = @This();

@@ -44,6 +44,12 @@ pub fn RedBlackTree(comptime NodeType: type) type {
             @compileError("NodeType '" ++ @typeName(NodeType) ++
                 "' must define a public 'compare' function");
         }
+
+        // to update already existing values.
+        // if you do not want this feature, just pass an empty function
+        // if (!@hasDecl(NodeType, "update")) {
+        //     @compileError("NodeType '" ++ @typeName(NodeType) ++ "' must have a update function");
+        // }
     }
 
     const T: type = get_node_type(NodeType, "key");
