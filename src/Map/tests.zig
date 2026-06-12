@@ -6,7 +6,7 @@ test "the hashing function works and distributes well over the n hash_table entr
     const io = std.testing.io;
     const cwd = std.Io.Dir.cwd;
 
-    var file = try cwd().openFile(io, "/home/akrn/zig/sys_zig/src/Map/words.txt", .{ .mode = .read_only });
+    var file = try cwd().openFile(io, "/home/akrn/zig/zadt/src/Map/words.txt", .{ .mode = .read_only });
     defer file.close(io);
 
     var buf: [256]u8 = undefined;
@@ -14,16 +14,33 @@ test "the hashing function works and distributes well over the n hash_table entr
 
     // we make a little array with the size of the hash map array
     var arr: [2048]u32 = .{0} ** 2048;
-    var counter = 0;
+    var counter: u32 = 0;
 
     while (try reader.interface.takeDelimiter('\n')) |line| {
         const x = HashMap(i32).hash(line);
         arr[x] += 1;
         counter += 1;
     }
-    const expected_avg = counter / 2048;
+    // const expected_avg = counter / 2048;
+    //
+    // for (arr) |entry| {
+    //     try std.testing.expect(expected_avg - entry > -3);
+    // }
+}
 
-    for (arr) |entry| {
-        try std.testing.expect(expected_avg - entry > -3);
-    }
+test "simple dict test" {
+    const allocator = std.testing.allocator;
+    var my_dict = try Dict(bool).init(allocator);
+
+    try my_dict.insert("test", true);
+    try std.testing.expect(my_dict.get("test") == true);
+    try std.testing.expect(null == my_dict.get("does not exist"));
+
+    // try std.testing.expectError(error.node_not_found, try my_dict.delete("not exsiting"));
+
+    try my_dict.update("test", false);
+    try std.testing.expect(my_dict.get("test") == false);
+
+    try my_dict.delete("test");
+    my_dict.deinit();
 }

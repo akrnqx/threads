@@ -14,7 +14,7 @@ pub fn Dict(comptime T: type) type {
 
         pub fn init(allocator: std.mem.Allocator) !Self {
             var tree = try allocator.create(RedBlackTree(Node));
-            tree.init("");
+            tree.init();
             return .{
                 .allocator = allocator,
                 .tree = tree,
@@ -22,9 +22,11 @@ pub fn Dict(comptime T: type) type {
         }
 
         pub fn deinit(self: *Self) void {
-            while (self.tree.root != &self.tree.nil) {
-                self.allocator.destroy(self.tree.delete(self.tree.root.key));
+            while (self.tree.root) |root_node| {
+                const node = self.tree.delete(root_node.key) orelse break;
+                self.allocator.destroy(node);
             }
+            self.allocator.destroy(self.tree);
         }
 
         pub fn insert(self: *Self, k: []const u8, v: T) !void {
@@ -43,10 +45,11 @@ pub fn Dict(comptime T: type) type {
         }
 
         pub fn get(self: Self, k: []const u8) ?T {
-            return self.tree.search(k);
+            const node = self.tree.search(k) orelse return null;
+            return node.data;
         }
 
-        pub fn update(self: *Self, k: []const u8, v: T) void {
+        pub fn update(self: *Self, k: []const u8, v: T) !void {
             const node_to_update = self.tree.delete(k);
             if (node_to_update) |n| {
                 n.data = v;
